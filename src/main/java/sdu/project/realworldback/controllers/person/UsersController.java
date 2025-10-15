@@ -15,9 +15,8 @@ import sdu.project.realworldback.dto.ResponseUserRequestDto;
 import sdu.project.realworldback.dto.RegisterUserRequestDto;
 import sdu.project.realworldback.services.impl.PersonServiceImpl;
 
-@Validated
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UsersController {
 
@@ -30,7 +29,8 @@ public class UsersController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseUserRequestDto> loginUser(@RequestBody @Valid LoginUserDto dto){
-
+        // Consider limiting response details: do not return whether username exists etc.
         return ResponseEntity.ok(personService.loginUser(dto));
     }
 }
+
