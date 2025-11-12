@@ -40,12 +40,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: "p/ci"
-          args: >
-            --json
-            --output semgrep-report.json
+        run: |
+          docker run --rm -v "$PWD":/src returntocorp/semgrep semgrep --config=p/ci --json --output=semgrep-report.json
 
       - name: Upload Semgrep report
         uses: actions/upload-artifact@v4
