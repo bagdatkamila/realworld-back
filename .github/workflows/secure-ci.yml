@@ -7,57 +7,20 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build:
-    name: Build Application
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: | 
-          cd src
-          npm install
-
-      - name: Build project
-        run: | 
-          cd src
-          npm run build
-
-      - name: Prepare build artifact
-        run: |
-          cd src
-          mkdir -p ../../build-output
-          cp -r dist ../../build-output/
-
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: build-output
-
-
   sonarqube:
-    name: SonarQube Scan
+    name: SonarCloud Scan
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v3
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: Upload SonarQube report
+      - name: Upload SonarCloud report
         uses: actions/upload-artifact@v4
         with:
           name: sonarqube-report
@@ -66,7 +29,6 @@ jobs:
   semgrep:
     name: Semgrep Static Analysis
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -87,7 +49,6 @@ jobs:
   trivy:
     name: Trivy SCA + DAST
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -103,7 +64,6 @@ jobs:
           format: 'json'
           output: 'trivy-fs-report.json'
 
-      # scan built docker image
       - name: Build Docker image
         run: docker build -t realworld-back:latest .
 
