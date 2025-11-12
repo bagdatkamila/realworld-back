@@ -8,22 +8,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sdu.project.realworldback.dto.ResponseUserRequestDto;
-import sdu.project.realworldback.repositories.PersonRepository;
-import sdu.project.realworldback.security.JwtTokenProvider;
 import sdu.project.realworldback.services.impl.PersonServiceImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import sdu.project.realworldback.exceptions.AccessDeniedException;
 
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/user")
+@RequestMapping("/api/user")
 public class PersonController {
 
     private final PersonServiceImpl personService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping
     public ResponseEntity<ResponseUserRequestDto> getCurrentUser(){
-        String jwt = jwtTokenProvider.getCurrentJwtToken();
-        return ResponseEntity.ok(personService.getCurrentUser(jwt));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            throw new AccessDeniedException("Unauthorized"); // will be handled by GlobalExceptionHandler
+        }
+        String username = auth.getName();
+        return ResponseEntity.ok(personService.getCurrentUser(username));
+        // prefer service method that accepts username (not raw jwt)
     }
 }
