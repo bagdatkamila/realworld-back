@@ -30,15 +30,18 @@ jobs:
           cd src
           npm run build
 
-      - name: Upload dist artifact
+      - name: Prepare build artifact
         run: |
           cd src
           mkdir -p ../../build-output
           cp -r dist ../../build-output/
+
+      - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-output
           path: build-output
+
 
   sonarqube:
     name: SonarQube Scan
