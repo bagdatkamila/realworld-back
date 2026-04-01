@@ -1,6 +1,5 @@
 package sdu.project.realworldback.validation;
 
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,16 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        return email != null && !personRepository.existsByEmail(email);
+        if (email == null) {
+            return false;
+        }
+
+        String normalizedEmail = email.trim().toLowerCase();
+
+        try {
+            return !personRepository.existsByEmail(normalizedEmail);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

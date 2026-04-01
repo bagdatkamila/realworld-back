@@ -51,7 +51,9 @@ public class WebConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                            response.getWriter().write("Unauthorized.");
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"error\": \"Unauthorized\"}");
+
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -60,9 +62,9 @@ public class WebConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "api/articles/feed",
-                                "api/profiles/*/follow"
-                                ).authenticated()
+                                 "/api/articles/feed", 
+                                 "/api/profiles/*/follow"
+                        ).authenticated()
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "api/profiles/*/follow",
@@ -113,7 +115,7 @@ public class WebConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
